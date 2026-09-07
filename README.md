@@ -16,6 +16,8 @@ Building a simple Student Records API with Python and FastAPI, supporting create
 - Filter students by course, year and minimum grade
 - Structured API responses using Pydantic response models
 - Improved HTTP status codes for create and delete operations
+- Automated API testing with pytest
+- Separate in-memory SQLite database for automated tests
 
 ## Technologies Used
 
@@ -25,6 +27,7 @@ Building a simple Student Records API with Python and FastAPI, supporting create
 - Uvicorn
 - SQLite
 - SQLAlchemy
+- pytest
 
 ## API Endpoints
 
@@ -69,19 +72,27 @@ http://127.0.0.1:8000/docs
 
 ## Current Version
 
-Version 5 improves API response handling using Pydantic response models and standard HTTP status codes.
+Version 6 adds automated API testing with pytest.
 
-Improvements include:
+The automated test suite covers:
 
-- POST requests return 201 Created
-- DELETE requests return 204 No Content
-- GET, POST and PUT endpoints use `StudentResponse` models
-- API responses now have a cleaner and more consistent structure
-- Student filtering from Version 4 remains available
+- API home endpoint
+- Retrieving all students
+- Creating students
+- Retrieving students by ID
+- Updating students
+- Deleting students
+- 404 Not Found handling
+- 422 validation errors
+- Student filtering
 
-Filters can be combined, for example:
+Tests use a separate in-memory SQLite database so the development database is not modified during testing.
 
-`/students?year=4&min_grade=3.0`
+Run the tests with:
+
+```bash
+python -m pytest -v
+```
 
 ## Version History
 
@@ -90,3 +101,4 @@ Filters can be combined, for example:
 - v3.0.0 - Student input validation using Pydantic
 - v4.0.0 - Student filtering using FastAPI query parameters
 - v5.0.0 - Response models and improved HTTP status codes
+- v6.0.0 - Automated API testing with pytest

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
+from auth import get_current_user
 
 import models
 from database import get_db
@@ -62,10 +63,10 @@ def get_student(
     status_code=status.HTTP_201_CREATED
 )
 def create_student(
-    student: Student,
-    db: Session = Depends(get_db)
+    student: Student, 
+    db: Session = Depends(get_db),
+    current_user: models.UserModel = Depends(get_current_user)
 ):
-
     new_student = models.StudentModel(
         name=student.name,
         age=student.age,
@@ -88,7 +89,8 @@ def create_student(
 def update_student(
     student_id: int,
     student: Student,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.UserModel = Depends(get_current_user)
 ):
 
     existing_student = db.query(models.StudentModel).filter(
@@ -119,7 +121,8 @@ def update_student(
 )
 def delete_student(
     student_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.UserModel = Depends(get_current_user)
 ):
 
     student = db.query(models.StudentModel).filter(

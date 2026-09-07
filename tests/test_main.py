@@ -39,6 +39,41 @@ app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
+# this is a helper, and this will automatically create a test user
+# logs the user in 
+# gets the JWT token and 
+# returns the Authorization header
+
+def get_auth_headers():
+    user_data = {
+        "username": "testuser",
+        "password": "password123"
+    }
+
+    register_response = client.post(
+        "/auth/register",
+        json=user_data
+    )
+
+    assert register_response.status_code == 201
+
+    login_response = client.post(
+        "/auth/login",
+        data = {
+            "username": "testuser",
+            "password": "password123"
+        }
+    )
+
+    assert login_response.status_code == 200
+
+    token = login_response.json()["access_token"]
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }
+
+
 @pytest.fixture(autouse=True)
 def reset_database():
     Base.metadata.drop_all(bind=test_engine)
@@ -64,6 +99,7 @@ def test_get_students():
 
 
 def test_create_student():
+    headers = get_auth_headers()
     student_data = {
         "name": "Michael Ryan",
         "age": 21,
@@ -75,7 +111,8 @@ def test_create_student():
 
     response = client.post(
         "/students", 
-        json=student_data
+        json=student_data,
+        headers=headers
     )
 
     assert response.status_code == 201
@@ -90,6 +127,7 @@ def test_create_student():
 
 
 def test_get_student_by_id():
+    headers = get_auth_headers()
     student_data = {
         "name": "Emma Murphy", 
         "age": 22, 
@@ -100,7 +138,8 @@ def test_get_student_by_id():
 
     create_response = client.post(
         "/students",
-        json=student_data
+        json=student_data,
+        headers=headers
     )
 
     student_id = create_response.json()["id"]
@@ -123,6 +162,8 @@ def test_student_not_found():
     }
 
 def test_invalid_student():
+    headers = get_auth_headers()
+
     invalid_student = {
         "name": "", 
         "age": -5,
@@ -133,12 +174,16 @@ def test_invalid_student():
 
     response = client.post(
         "/students",
-        json=invalid_student
+        json=invalid_student,
+        headers=headers
     )
 
     assert response.status_code == 422
 
 def test_update_student():
+    headers = get_auth_headers()
+
+
     student_data = {
         "name": "Emma Murphy",
         "age": 22,
@@ -149,7 +194,8 @@ def test_update_student():
 
     create_response = client.post(
         "/students",
-        json=student_data
+        json=student_data,
+        headers=headers
     )
 
     student_id = create_response.json()["id"]
@@ -164,7 +210,8 @@ def test_update_student():
 
     response = client.put(
         f"/students/{student_id}",
-        json=updated_data
+        json=updated_data,
+        headers=headers
     )
 
     assert response.status_code == 200
@@ -177,6 +224,8 @@ def test_update_student():
     assert data["year"] == 4
 
 def test_delete_student():
+    headers = get_auth_headers()
+
     student_data = {
         "name": "John Smith",
         "age": 20, 
@@ -187,12 +236,14 @@ def test_delete_student():
 
     create_response = client.post(
         "/students",
-        json=student_data
+        json=student_data,
+        headers=headers
     )
 
     student_id = create_response.json()["id"]
 
-    response = client.delete(f"/students/{student_id}")
+    response = client.delete(f"/students/{student_id}",
+            headers=headers)
 
     assert response.status_code == 204
 
@@ -202,6 +253,8 @@ def test_delete_student():
 
 
 def test_filter_students_by_year():
+        headers = get_auth_headers()
+
         student_one = {
             "name": "Emma Murphy",
             "age": 22,
@@ -218,8 +271,8 @@ def test_filter_students_by_year():
             "year": 2
         }
 
-        client.post("/students", json=student_one)
-        client.post("/students", json=student_two)
+        client.post("/students", json=student_one, headers=headers)
+        client.post("/students", json=student_two, headers=headers)
 
         response = client.get("/students?year=4")
 
@@ -230,3 +283,17 @@ def test_filter_students_by_year():
         assert len(data) == 1
         assert data[0]["name"] == "Emma Murphy"
         assert data[0]["year"] == 4
+
+
+def test_create_student_requires_authentication():
+    student_data = {
+        "name": "Daniel Kelly",
+        "age": 21,
+        "course": "Computing",
+        "grade": 3.4,
+        "year": 3
+    }
+
+    response = client.post("/students", json=student_data)
+
+    assert response.status_code == 401 

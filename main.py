@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
@@ -12,7 +12,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Student Records System",
     description="This is a simple API for managing student records.",
-    version="3.0.0"
+    version="4.0.0"
 )
 
 
@@ -41,11 +41,29 @@ def home():
 
 
 @app.get("/students")
-def get_students(db: Session = Depends(get_db)):
+def get_students(
+    course: str | None = None,
+    year: int | None = Query(default=None, ge=1, le=4),
+    min_grade: float | None = Query(default=None, ge=0.0, le=4.0),
+    db: Session = Depends(get_db)
+):
 
-    students = db.query(models.StudentModel).all()
+    query = db.query(models.StudentModel)
 
-    return students
+    if course: 
+        query = query.filter(models.StudentModel.course.ilike(f"%{course}%")
+        )
+
+    if year is not None:
+        query = query.filter(models.StudentModel.year == year
+        )
+
+    if min_grade is not None:
+        query = query.filter(
+            models.StudentModel.grade >= min_grade
+        )
+
+    return query.all()
 
 
 @app.get("/students/{student_id}")

@@ -18,6 +18,8 @@ Building a simple Student Records API with Python and FastAPI, supporting create
 - Improved HTTP status codes for create and delete operations
 - Automated API testing with pytest
 - Separate in-memory SQLite database for automated tests
+- Modular FastAPI project structure
+- Separate routers, schemas, database configuration and models 
 
 ## Technologies Used
 
@@ -72,21 +74,20 @@ http://127.0.0.1:8000/docs
 
 ## Current Version
 
-Version 6 adds automated API testing with pytest.
+## Current Version
 
-The automated test suite covers:
+Version 7 refactors the Student Records API into a cleaner modular project structure.
 
-- API home endpoint
-- Retrieving all students
-- Creating students
-- Retrieving students by ID
-- Updating students
-- Deleting students
-- 404 Not Found handling
-- 422 validation errors
-- Student filtering
+The project is now separated into:
 
-Tests use a separate in-memory SQLite database so the development database is not modified during testing.
+- `main.py` - FastAPI application setup
+- `database.py` - Database connection and session management
+- `models.py` - SQLAlchemy database models
+- `schemas.py` - Pydantic request and response schemas
+- `routers/students.py` - Student API routes
+- `tests/test_main.py` - Automated pytest tests
+
+The refactor improves maintainability and makes the project easier to extend.
 
 Run the tests with:
 
@@ -102,3 +103,4 @@ python -m pytest -v
 - v4.0.0 - Student filtering using FastAPI query parameters
 - v5.0.0 - Response models and improved HTTP status codes
 - v6.0.0 - Automated API testing with pytest
+- v7.0.0 - Refactored project into a modular FastAPI structure

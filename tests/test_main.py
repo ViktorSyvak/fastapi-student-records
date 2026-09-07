@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from database import Base
-from main import app, get_db
+from database import Base, get_db
+from main import app
 
 
 TEST_DATABASE_URL = "sqlite://"

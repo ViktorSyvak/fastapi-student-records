@@ -12,7 +12,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Student Records System",
     description="This is a simple API for managing student records.",
-    version="5.0.0"
+    version="6.0.0"
 )
 
 

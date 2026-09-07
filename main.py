@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import models
 from database import Base, engine, SessionLocal
@@ -12,7 +12,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Student Records System",
     description="This is a simple API for managing student records.",
-    version="2.0.0"
+    version="3.0.0"
 )
 
 
@@ -26,11 +26,11 @@ def get_db():
 
 
 class Student(BaseModel):
-    name: str
-    age: int
-    course: str
-    grade: float
-    year: int
+    name: str = Field(min_length=2, max_length=100)
+    age: int = Field(ge=16, le=100)
+    course: str = Field(min_length=2, max_length=100)
+    grade: float = Field(ge=0.0, le=4.0)
+    year: int = Field(ge=1, le=4)
 
 
 @app.get("/")

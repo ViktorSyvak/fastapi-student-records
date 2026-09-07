@@ -12,6 +12,7 @@ Building a simple Student Records API with Python and FastAPI, supporting create
 - Data validation with Pydantic
 - Interactive API documentation with Swagger UI
 - Persistent student records using SQLite
+- Input validation for student data using pydantic
 
 ## Technologies Used
 
@@ -65,4 +66,18 @@ http://127.0.0.1:8000/docs
 
 ## Current Version
 
-Version 2 uses SQLite with SQLAlchemy for persistent student record storage.
+Version 3 adds Pydantic input validation to ensure student records contain valid names, ages, courses, grades and study years.
+
+Validation rules include:
+
+- Name: 2–100 characters
+- Age: 16–100
+- Course: 2–100 characters
+- Grade: 0.0–4.0
+- Year: 1–4
+
+## Version History
+
+- v1.0.0 - In-memory student records using a Python dictionary
+- v2.0.0 - Persistent storage using SQLite and SQLAlchemy
+- v3.0.0 - Student input validation using Pydantic

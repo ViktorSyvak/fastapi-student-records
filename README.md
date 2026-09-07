@@ -18,6 +18,8 @@ Building a simple Student Records API with Python and FastAPI, supporting create
 - FastAPI
 - Pydantic
 - Uvicorn
+- SQLite
+- SQLAlchemy
 
 ## API Endpoints
 
@@ -62,4 +64,4 @@ http://127.0.0.1:8000/docs
 
 ## Current Version
 
-The current version stores student records in memory using a Python dictionary.
+Version 2 uses SQLite with SQLAlchemy for persistent student record storage.

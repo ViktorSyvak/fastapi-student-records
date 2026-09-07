@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.orm import Session
-from auth import get_current_user
+from auth import get_current_admin
 
 import models
 from database import get_db
@@ -65,7 +65,7 @@ def get_student(
 def create_student(
     student: Student, 
     db: Session = Depends(get_db),
-    current_user: models.UserModel = Depends(get_current_user)
+    current_user: models.UserModel = Depends(get_current_admin)
 ):
     new_student = models.StudentModel(
         name=student.name,
@@ -90,7 +90,7 @@ def update_student(
     student_id: int,
     student: Student,
     db: Session = Depends(get_db),
-    current_user: models.UserModel = Depends(get_current_user)
+    current_user: models.UserModel = Depends(get_current_admin)
 ):
 
     existing_student = db.query(models.StudentModel).filter(
@@ -122,7 +122,7 @@ def update_student(
 def delete_student(
     student_id: int,
     db: Session = Depends(get_db),
-    current_user: models.UserModel = Depends(get_current_user)
+    current_user: models.UserModel = Depends(get_current_admin)
 ):
 
     student = db.query(models.StudentModel).filter(

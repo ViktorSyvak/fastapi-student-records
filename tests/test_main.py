@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+import models
 from database import Base, get_db
 from main import app
 
@@ -73,6 +74,22 @@ def get_auth_headers():
         "Authorization": f"Bearer {token}"
     }
 
+def get_admin_headers():
+    headers = get_auth_headers()
+
+    db = TestingSessionLocal()
+
+    user = db.query(models.UserModel).filter(
+        models.UserModel.username == "testuser"
+    ).first()
+
+    user.is_admin = True
+
+    db.commit()
+    db.close()
+
+    return headers
+
 
 @pytest.fixture(autouse=True)
 def reset_database():
@@ -99,7 +116,7 @@ def test_get_students():
 
 
 def test_create_student():
-    headers = get_auth_headers()
+    headers = get_admin_headers()
     student_data = {
         "name": "Michael Ryan",
         "age": 21,
@@ -127,7 +144,7 @@ def test_create_student():
 
 
 def test_get_student_by_id():
-    headers = get_auth_headers()
+    headers = get_admin_headers()
     student_data = {
         "name": "Emma Murphy", 
         "age": 22, 
@@ -162,7 +179,7 @@ def test_student_not_found():
     }
 
 def test_invalid_student():
-    headers = get_auth_headers()
+    headers = get_admin_headers()
 
     invalid_student = {
         "name": "", 
@@ -181,7 +198,7 @@ def test_invalid_student():
     assert response.status_code == 422
 
 def test_update_student():
-    headers = get_auth_headers()
+    headers = get_admin_headers()
 
 
     student_data = {
@@ -224,7 +241,7 @@ def test_update_student():
     assert data["year"] == 4
 
 def test_delete_student():
-    headers = get_auth_headers()
+    headers = get_admin_headers()
 
     student_data = {
         "name": "John Smith",
@@ -253,7 +270,7 @@ def test_delete_student():
 
 
 def test_filter_students_by_year():
-        headers = get_auth_headers()
+        headers = get_admin_headers()
 
         student_one = {
             "name": "Emma Murphy",
@@ -271,8 +288,12 @@ def test_filter_students_by_year():
             "year": 2
         }
 
-        client.post("/students", json=student_one, headers=headers)
-        client.post("/students", json=student_two, headers=headers)
+        client.post("/students", 
+                    json=student_one, 
+                    headers=headers)
+        client.post("/students", 
+                    json=student_two, 
+                    headers=headers)
 
         response = client.get("/students?year=4")
 
@@ -297,3 +318,25 @@ def test_create_student_requires_authentication():
     response = client.post("/students", json=student_data)
 
     assert response.status_code == 401 
+
+def test_normal_user_cannot_create_student():
+    headers = get_auth_headers()
+
+    student_data = {
+        "name": "Daniel Kelly",
+        "age": 21,
+        "course": "Computing",
+        "grade": 3.4,
+        "year": 3
+    }
+
+    response = client.post(
+        "/students",
+        json=student_data,
+        headers=headers
+    )
+
+    assert response.status_code == 403
+    assert response.json() == {
+        "detail": "Admin access required"
+    }

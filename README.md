@@ -12,7 +12,7 @@ Building a simple Student Records API with Python and FastAPI, supporting create
 - Data validation with Pydantic
 - Interactive API documentation with Swagger UI
 - Persistent student records using SQLite
-- Input validation for student data using pydantic
+- Input validation for student data using Pydantic
 
 ## Technologies Used
 

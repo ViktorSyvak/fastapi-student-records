@@ -11,6 +11,7 @@ Building a simple Student Records API with Python and FastAPI, supporting create
 - Delete student records
 - Data validation with Pydantic
 - Interactive API documentation with Swagger UI
+- Persistent student records using SQLite
 
 ## Technologies Used
 

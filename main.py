@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Depends, Query, status, Response
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 import models
 from database import Base, engine, SessionLocal
@@ -12,7 +12,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Student Records System",
     description="This is a simple API for managing student records.",
-    version="4.0.0"
+    version="5.0.0"
 )
 
 
@@ -32,6 +32,16 @@ class Student(BaseModel):
     grade: float = Field(ge=0.0, le=4.0)
     year: int = Field(ge=1, le=4)
 
+class StudentResponse(BaseModel):
+    id: int 
+    name: str 
+    age: int 
+    course: str 
+    grade: float 
+    year: int 
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 @app.get("/")
 def home():
@@ -40,7 +50,7 @@ def home():
     }
 
 
-@app.get("/students")
+@app.get("/students", response_model=list[StudentResponse])
 def get_students(
     course: str | None = None,
     year: int | None = Query(default=None, ge=1, le=4),
@@ -66,7 +76,7 @@ def get_students(
     return query.all()
 
 
-@app.get("/students/{student_id}")
+@app.get("/students/{student_id}", response_model=StudentResponse)
 def get_student(
     student_id: int,
     db: Session = Depends(get_db)
@@ -85,7 +95,8 @@ def get_student(
     return student
 
 
-@app.post("/students")
+@app.post("/students", response_model=StudentResponse, 
+          status_code=status.HTTP_201_CREATED)
 def create_student(
     student: Student,
     db: Session = Depends(get_db)
@@ -106,7 +117,8 @@ def create_student(
     return new_student
 
 
-@app.put("/students/{student_id}")
+@app.put("/students/{student_id}",
+         response_model=StudentResponse)
 def update_student(
     student_id: int,
     student: Student,
@@ -132,13 +144,13 @@ def update_student(
     db.commit()
     db.refresh(existing_student)
 
-    return {
-        "message": "Student updated successfully",
-        "student": existing_student
-    }
+    return existing_student
 
 
-@app.delete("/students/{student_id}")
+@app.delete("/students/{student_id}",
+            status_code=status.HTTP_204_NO_CONTENT)
+
+
 def delete_student(
     student_id: int,
     db: Session = Depends(get_db)
@@ -157,7 +169,4 @@ def delete_student(
     db.delete(student)
     db.commit()
 
-    return {
-        "message": "Student deleted successfully",
-        "student_id": student_id
-    }
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

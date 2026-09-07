@@ -14,6 +14,8 @@ Building a simple Student Records API with Python and FastAPI, supporting create
 - Persistent student records using SQLite
 - Input validation for student data using Pydantic
 - Filter students by course, year and minimum grade
+- Structured API responses using Pydantic response models
+- Improved HTTP status codes for create and delete operations
 
 ## Technologies Used
 
@@ -67,13 +69,15 @@ http://127.0.0.1:8000/docs
 
 ## Current Version
 
-Version 4 adds student filtering using FastAPI query parameters.
+Version 5 improves API response handling using Pydantic response models and standard HTTP status codes.
 
-Available filters include:
+Improvements include:
 
-- Course
-- Study year 
-- Minimum grade
+- POST requests return 201 Created
+- DELETE requests return 204 No Content
+- GET, POST and PUT endpoints use `StudentResponse` models
+- API responses now have a cleaner and more consistent structure
+- Student filtering from Version 4 remains available
 
 Filters can be combined, for example:
 
@@ -85,3 +89,4 @@ Filters can be combined, for example:
 - v2.0.0 - Persistent storage using SQLite and SQLAlchemy
 - v3.0.0 - Student input validation using Pydantic
 - v4.0.0 - Student filtering using FastAPI query parameters
+- v5.0.0 - Response models and improved HTTP status codes
